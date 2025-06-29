@@ -15,8 +15,9 @@ public class FirebaseInitializer {
     @PostConstruct
     public void initialize() {
         try {
+            // ✅ Updated path for Render deployment
             FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/firebase-config.json");
+                    new FileInputStream("/etc/secrets/firebase-config.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
