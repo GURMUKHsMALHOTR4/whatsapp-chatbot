@@ -33,12 +33,13 @@ public class webhookcontroller {
     private String accessToken;
 
     public webhookcontroller() throws IOException {
+        // ✅ Updated path for Render deployment
         if (FirebaseApp.getApps().isEmpty()) {
-            FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-config.json");
+            FileInputStream serviceAccount = new FileInputStream("/etc/secrets/firebase-config.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setProjectId("whatsapp-chatbot-1127f")
+                    .setProjectId("whatsapp-chatbot-1127f") // replace if different
                     .build();
 
             FirebaseApp.initializeApp(options);
@@ -47,7 +48,7 @@ public class webhookcontroller {
         this.db = FirestoreClient.getFirestore();
     }
 
-    // ✅ Webhook verification
+    // ✅ WhatsApp webhook verification
     @GetMapping
     public ResponseEntity<String> verifyWebhook(
             @RequestParam("hub.mode") String mode,
@@ -61,7 +62,7 @@ public class webhookcontroller {
         }
     }
 
-    // ✅ Handle incoming messages
+    // ✅ Handle incoming message
     @PostMapping
     public ResponseEntity<Void> receiveMessage(@RequestBody Map<String, Object> payload) {
         try {
@@ -96,7 +97,7 @@ public class webhookcontroller {
                 ApiFuture<WriteResult> result = docRef.set(data);
                 System.out.println("✅ Message saved to Firestore.");
 
-                // ✅ Respond with plain text (no template)
+                // ✅ Auto-reply if greeting
                 if (text != null) {
                     String lowerText = text.toLowerCase();
                     List<String> greetings = Arrays.asList("hi", "hello", "hey", "hii", "hola", "yo", "greetings", "helo", "sup");
@@ -119,7 +120,7 @@ public class webhookcontroller {
         return ResponseEntity.ok().build();
     }
 
-    // ✅ Send regular text reply
+    // ✅ Send WhatsApp reply
     private void sendWhatsAppReply(String recipientPhone, String messageText) {
         try {
             String json = String.format("""
